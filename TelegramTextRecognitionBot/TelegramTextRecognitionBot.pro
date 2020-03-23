@@ -1,4 +1,4 @@
-QT -= gui
+QT += gui
 QT += network
 
 CONFIG += c++11 console
@@ -17,7 +17,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-    bot.cpp
+    bot.cpp \
+    message.cpp \
+    user.cpp \
+    telegramtypesfactory.cpp \
+    update.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -25,4 +29,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    bot.h
+    bot.h \
+    message.h \
+    user.h \
+    telegramtypesfactory.h \
+    update.h

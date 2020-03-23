@@ -1,8 +1,7 @@
 #include "bot.h"
 #include <iostream>
 #include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
+#include "telegramtypesfactory.h"
 Bot::Bot()
 {
     access_manager = new QNetworkAccessManager(this);
@@ -22,22 +21,16 @@ void Bot::receiveUpdates(QNetworkReply *reply)
 {
     if(reply->error() == QNetworkReply::NoError){
         QByteArray telegram_answer = reply->readAll();
+        //std::cout << telegram_answer.toStdString() << "\n\n";
         QJsonDocument json_document = QJsonDocument::fromJson(telegram_answer);
         QJsonObject rootObject = json_document.object();
-        QJsonArray result = rootObject["result"].toArray();
-        int newest_update_id = 0;
-        foreach(auto&& json_value,result){
-            QJsonObject json_object = json_value.toObject();
-            int update_id = json_object["update_id"].toInt();
-            if(update_id>newest_update_id){
-                newest_update_id = update_id;
+        QVector<Update*> updates = TelegramTypesFactory::parseUpdates(rootObject);
+        int newest_update_id = -1;
+        foreach(Update *update,updates){
+            std::cout << update->getMessage()->getText().toStdString()<<std::endl;
+            if(update->getUpdateId() > newest_update_id){
+                newest_update_id = update->getUpdateId();
             }
-            QJsonObject message = json_object["message"].toObject();
-            QString text = message["text"].toString();
-            QJsonObject user = message["from"].toObject();
-            QString username = user["username"].toString();
-            std::cout << "Received message \"" <<text.toStdString()<< "\" "<<  "from : @" << username.toStdString() << std::endl;
-
         }
         request->setUrl(QUrl(telegram_api_url+bot_token+"/getUpdates?offset=" + QString::number(newest_update_id+1)));
         access_manager->get(*request);

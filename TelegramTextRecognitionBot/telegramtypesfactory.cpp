@@ -1,0 +1,54 @@
+#include <QJsonArray>
+
+#include "telegramtypesfactory.h"
+
+TelegramTypesFactory::TelegramTypesFactory(){
+
+}
+
+QVector<Update *> TelegramTypesFactory::parseUpdates(const QJsonObject &updates)
+{
+    QVector<Update *> updates_vector;
+    QJsonArray result = updates["result"].toArray();
+    foreach(auto&& json_value,result){
+        QJsonObject update_json_object = json_value.toObject();
+        Update *update = createUpdate(update_json_object);
+        updates_vector.push_back(update);
+    }
+    return updates_vector;
+}
+
+Update *TelegramTypesFactory::createUpdate(const QJsonObject &update_json_object)
+{
+    Update* update = new Update();
+    int update_id = update_json_object["update_id"].toInt();
+    Message *message = createMessage(update_json_object["message"].toObject());
+    update->setUpdateId(update_id);
+    update->setMessage(*message);
+    return update;
+}
+
+Message *TelegramTypesFactory::createMessage(const QJsonObject &message_json_object){
+    Message* message = new Message();
+    int message_id = message_json_object["message_id"].toInt();
+    QString text = message_json_object["text"].toString();
+    User *user = createUser(message_json_object["from"].toObject());
+    message->setMessageId(message_id);
+    message->setUser(*user);
+    message->setText(text);
+    QJsonArray photos = message_json_object["photo"].toArray();
+    foreach(auto&& json_value, photos){
+        QJsonObject photo_json_object = json_value.toObject();
+        message->addPhotoId(photo_json_object["file_id"].toString());
+    }
+    return message;
+}
+
+User *TelegramTypesFactory::createUser(const QJsonObject &user_json_object){
+    User *user = new User();
+    int id = user_json_object["id"].toInt();
+    QString username = user_json_object["username"].toString();
+    user->setId(id);
+    user->setUsername(username);
+    return user;
+}
