@@ -14,6 +14,8 @@ public:
     QString getUsername() const;
     void setUsername(const QString &value);
 
+    QString toString();
+
 private:
     int id = -1;
     QString username;

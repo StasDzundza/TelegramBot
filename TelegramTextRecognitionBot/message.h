@@ -1,7 +1,6 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include <QString>
 #include <QImage>
 #include <QVector>
 #include <memory>
@@ -23,6 +22,8 @@ public:
     void setPhotosId(const QVector<QString> &value);
 
     void addPhotoId(const QString& photo_id);
+
+    QString toString();
 
 private:
     int message_id = -1;

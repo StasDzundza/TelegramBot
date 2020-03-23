@@ -48,4 +48,13 @@ void Message::addPhotoId(const QString &photo_id)
     photos_id.push_back(photo_id);
 }
 
+QString Message::toString()
+{
+    QString message_info;
+    message_info += "Message id = " + QString::number(message_id) + '\n';
+    message_info += "Message text : " + text + '\n';
+    message_info += "User info : " + user->toString();
+    return message_info;
+}
+
 

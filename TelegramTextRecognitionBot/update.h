@@ -14,6 +14,8 @@ public:
     void setMessage(const Message&message);
     Message* getMessage()const;
 
+    QString toString();
+
 private:
     int update_id = -1;
     std::shared_ptr<Message> message;

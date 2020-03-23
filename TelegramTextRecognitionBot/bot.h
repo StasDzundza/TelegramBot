@@ -18,12 +18,15 @@ public slots:
 
 private slots:
     void receiveUpdates(QNetworkReply*reply);
+
+    void sendTextMessageToUser(const QString&chat_id,const QString&message);
+
 private:
     const QString bot_token = "1055976603:AAHeHiEW4QLNKqGduZazziVToKlRe_gSN-8";
     const QString telegram_api_url = "https://api.telegram.org/bot";
 
-    QNetworkAccessManager *access_manager;
-    QNetworkRequest *request;
+    QNetworkAccessManager *update_access_manager;
+    QNetworkRequest *update_request;
 };
 
 #endif // BOT_H
