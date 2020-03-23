@@ -2,6 +2,7 @@
 #define TELEGRAMTYPESFACTORY_H
 
 #include "update.h"
+#include "file.h"
 #include "QJsonObject"
 
 class TelegramTypesFactory
@@ -16,6 +17,8 @@ public:
     static Message *createMessage(const QJsonObject&message_json_object);
 
     static User *createUser(const QJsonObject&user_json_object);
+
+    static File *createFile(const QJsonObject&file_json_object);
 };
 
 #endif // TELEGRAMTYPESFACTORY_H

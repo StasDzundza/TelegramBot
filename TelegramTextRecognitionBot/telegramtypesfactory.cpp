@@ -37,10 +37,9 @@ Message *TelegramTypesFactory::createMessage(const QJsonObject &message_json_obj
     message->setUser(*user);
     message->setText(text);
     QJsonArray photos = message_json_object["photo"].toArray();
-    foreach(auto&& json_value, photos){
-        QJsonObject photo_json_object = json_value.toObject();
-        message->addPhotoId(photo_json_object["file_id"].toString());
-    }
+    int best_quality_photo_index = photos.size() - 1;
+    QJsonObject photo_json_object = photos.takeAt(best_quality_photo_index - 1).toObject();
+    message->setPhotoId(photo_json_object["file_id"].toString());
     return message;
 }
 
@@ -51,4 +50,17 @@ User *TelegramTypesFactory::createUser(const QJsonObject &user_json_object){
     user->setId(id);
     user->setUsername(username);
     return user;
+}
+
+File *TelegramTypesFactory::createFile(const QJsonObject &file_json_object)
+{
+    File *file = new File();
+    QJsonObject file_object = file_json_object["result"].toObject();
+    QString file_id = file_object["file_id"].toString();
+    QString file_path = file_object["file_path"].toString();
+    int file_size = file_object["file_size"].toInt();
+    file->setFileId(file_id);
+    file->setFilePath(file_path);
+    file->setFileSize(file_size);
+    return file;
 }

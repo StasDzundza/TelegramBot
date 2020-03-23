@@ -21,7 +21,8 @@ SOURCES += \
     message.cpp \
     user.cpp \
     telegramtypesfactory.cpp \
-    update.cpp
+    update.cpp \
+    file.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -33,4 +34,5 @@ HEADERS += \
     message.h \
     user.h \
     telegramtypesfactory.h \
-    update.h
+    update.h \
+    file.h

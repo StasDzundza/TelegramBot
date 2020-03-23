@@ -18,10 +18,8 @@ public:
     QString getText() const;
     void setText(const QString &value);
 
-    QVector<QString>& getPhotosId();
-    void setPhotosId(const QVector<QString> &value);
-
-    void addPhotoId(const QString& photo_id);
+    QString& getPhotoId();
+    void setPhotoId(const QString &value);
 
     QString toString();
 
@@ -29,7 +27,7 @@ private:
     int message_id = -1;
     std::shared_ptr<User> user;
     QString text;
-    QVector<QString> photos_id;
+    QString photo_id;
 
 };
 

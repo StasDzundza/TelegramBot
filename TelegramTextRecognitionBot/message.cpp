@@ -18,9 +18,9 @@ int Message::getMessageId() const
     return message_id;
 }
 
-void Message::setMessageId(int value)
+void Message::setMessageId(int message_id)
 {
-    message_id = value;
+    message_id = message_id;
 }
 
 QString Message::getText() const
@@ -28,24 +28,19 @@ QString Message::getText() const
     return text;
 }
 
-void Message::setText(const QString &value)
+void Message::setText(const QString &text)
 {
-    text = value;
+    this->text = text;
 }
 
-QVector<QString>& Message::getPhotosId()
+QString& Message::getPhotoId()
 {
-    return photos_id;
+    return photo_id;
 }
 
-void Message::setPhotosId(const QVector<QString> &value)
+void Message::setPhotoId(const QString &photo_id)
 {
-    photos_id = value;
-}
-
-void Message::addPhotoId(const QString &photo_id)
-{
-    photos_id.push_back(photo_id);
+    this->photo_id = photo_id;
 }
 
 QString Message::toString()
