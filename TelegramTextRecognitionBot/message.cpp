@@ -20,7 +20,7 @@ int Message::getMessageId() const
 
 void Message::setMessageId(int message_id)
 {
-    message_id = message_id;
+    this->message_id = message_id;
 }
 
 QString Message::getText() const

@@ -5,6 +5,8 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QVector>
+#include "translater.h"
 
 class Bot : public QObject
 {
@@ -12,6 +14,10 @@ class Bot : public QObject
 public:
     Bot();
     void start();
+
+public slots:
+    void receiveTranslatedText(const QString&translated_text,int user_id);
+
 signals:
 
 private slots:
@@ -34,7 +40,9 @@ private:
     QNetworkAccessManager file_access_manager;
     QNetworkRequest file_request;
 
-    void sendTextMessageToUser(const QString&chat_id,const QString&message);
+    void parseUserRequest(QVector<QString>& commands,const QString& text);
+
+    void sendTextMessageToUser(const QString& chat_id,const QString& message);
 
     void sendGetFileRequest(const QString& file_id);
 };

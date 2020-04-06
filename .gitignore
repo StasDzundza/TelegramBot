@@ -1,4 +1,6 @@
 *.txt
+*.json
+
 ### C++ ###
 # Prerequisites
 *.d
