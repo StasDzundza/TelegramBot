@@ -5,8 +5,8 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QVector>
 #include "translater.h"
+#include "update.h"
 
 class Bot : public QObject
 {
@@ -18,8 +18,6 @@ public:
 public slots:
     void receiveTranslatedText(const QString&translated_text,int user_id);
 
-signals:
-
 private slots:
     void receiveUpdates(QNetworkReply*reply);
 
@@ -28,8 +26,9 @@ private slots:
     void receiveFile(QNetworkReply*reply);
 
 private:
-    const QString bot_token = "1055976603:AAHeHiEW4QLNKqGduZazziVToKlRe_gSN-8";
-    const QString telegram_api_url = "https://api.telegram.org/";
+    const QString BOT_TOKEN = "1055976603:AAHeHiEW4QLNKqGduZazziVToKlRe_gSN-8";
+    const QString TELEGRAM_API_URL = "https://api.telegram.org/";
+    const QString INVALID_COMMAND = "INVALID COMMAND. Write /commands and check valid and existing commands.";
 
     QNetworkAccessManager update_access_manager;
     QNetworkRequest update_request;
@@ -40,7 +39,7 @@ private:
     QNetworkAccessManager file_access_manager;
     QNetworkRequest file_request;
 
-    void parseUserRequest(QVector<QString>& commands,const QString& text);
+    void processUpdate(const Update*update);
 
     void sendTextMessageToUser(const QString& chat_id,const QString& message);
 

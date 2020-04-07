@@ -1,5 +1,6 @@
 QT += gui
 QT += network
+QT += core
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -23,7 +24,8 @@ SOURCES += \
     telegramtypesfactory.cpp \
     update.cpp \
     file.cpp \
-    translater.cpp
+    translater.cpp \
+    textreader.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -37,4 +39,5 @@ HEADERS += \
     telegramtypesfactory.h \
     update.h \
     file.h \
-    translater.h
+    translater.h \
+    textreader.h

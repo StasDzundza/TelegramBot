@@ -14,7 +14,7 @@ public:
     void setMessage(const Message&message);
     Message* getMessage()const;
 
-    QString toString();
+    QString toString() const;
 
 private:
     int update_id = -1;

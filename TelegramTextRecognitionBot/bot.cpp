@@ -2,8 +2,10 @@
 #include <QJsonDocument>
 #include <QTextStream>
 #include <sstream>
+#include <QPointer>
 #include "bot.h"
 #include "telegramtypesfactory.h"
+#include "textreader.h"
 
 Bot::Bot()
 {
@@ -18,7 +20,7 @@ Bot::Bot()
 
 void Bot::start()
 {
-    update_request.setUrl(QUrl(telegram_api_url+"bot"+bot_token+"/getUpdates"));
+    update_request.setUrl(QUrl(TELEGRAM_API_URL+"bot"+BOT_TOKEN+"/getUpdates"));
     update_access_manager.get(update_request);
 }
 
@@ -26,37 +28,47 @@ void Bot::receiveUpdates(QNetworkReply *reply)
 {
     if(reply->error() == QNetworkReply::NoError){
         QByteArray telegram_answer = reply->readAll();
-        //std::cout << telegram_answer.toStdString() << "\n\n";
+        //std::cout << telegram_answer.toStdString() << std::endl;
         QJsonDocument json_document = QJsonDocument::fromJson(telegram_answer);
         QJsonObject rootObject = json_document.object();
         QVector<Update*> updates = TelegramTypesFactory::parseUpdates(rootObject);
         int newest_update_id = -1;
         foreach(Update *update,updates){
-            std::cout << update->getMessage()->getText().toStdString()<<std::endl;
+            std::cout << update->getMessage()->getText().toStdString() << std::endl;
             if(update->getUpdateId() > newest_update_id){
                 newest_update_id = update->getUpdateId();
             }
-            if(!update->getMessage()->getText().isEmpty()){
-                QVector<QString>commands;
-                parseUserRequest(commands,update->getMessage()->getText());
-                if(commands.at(0) == "/translate" and commands.size() == 4){
-                    Translater translater(this,update->getMessage()->getUser()->getId());
-                    translater.translateText(commands.at(3),commands.at(1),commands.at(2));
-                }else{
-                    sendGetFileRequest(update->getMessage()->getPhotoId());
-                    sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),update->toString() + "\nINVALID COMMAND!");
-                }
-            }
+            processUpdate(update);
             delete update;
         }
-        update_request.setUrl(QUrl(telegram_api_url+"bot"+bot_token+"/getUpdates?offset=" + QString::number(newest_update_id+1)));
+        update_request.setUrl(QUrl(TELEGRAM_API_URL+"bot"+BOT_TOKEN+"/getUpdates?offset=" + QString::number(newest_update_id+1)));
         update_access_manager.get(update_request);
+    }
+}
+
+void Bot::processUpdate(const Update *update)
+{
+    if(!update->getMessage()->getText().isEmpty()){
+        QVector<QString>commands = TextReader::splitTextByWords(update->getMessage()->getText());
+        if(commands.at(0) == "/translate_text" and commands.size() >= 4){
+            QString text_to_translate = TextReader::getTextAfterNthWord(update->getMessage()->getText(),3);
+            QPointer<Translater> translater = new Translater(this,update->getMessage()->getUser()->getId());
+            translater->translateText(text_to_translate,commands.at(1),commands.at(2));
+        }else{
+            sendGetFileRequest(update->getMessage()->getPhotoId());
+            sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),update->toString() + INVALID_COMMAND);
+        }
     }
 }
 
 void Bot::receiveTranslatedText(const QString &translated_text, int user_id)
 {
-    sendTextMessageToUser(QString::number(user_id),translated_text);
+    if(translated_text.isEmpty()){
+        sendTextMessageToUser(QString::number(user_id),INVALID_COMMAND);
+    }
+    else {
+        sendTextMessageToUser(QString::number(user_id),translated_text);
+    }
 }
 
 void Bot::sendResultHandler(QNetworkReply *reply)
@@ -75,34 +87,18 @@ void Bot::receiveFile(QNetworkReply *reply)
         QJsonDocument json_document = QJsonDocument::fromJson(telegram_answer);
         QJsonObject rootObject = json_document.object();
         File *file = TelegramTypesFactory::createFile(rootObject);
-        std::cout << telegram_api_url.toStdString() <<"file/bot"<< bot_token.toStdString() << '/' << file->getFilePath().toStdString() << std::endl;
+        std::cout << TELEGRAM_API_URL.toStdString() <<"file/bot"<< BOT_TOKEN.toStdString() << '/' << file->getFilePath().toStdString() << std::endl;
     }
-}
-
-void Bot::parseUserRequest(QVector<QString> &commands, const QString &text)
-{
-    std::string command = text.toStdString();
-    // Used to split string around spaces.
-    std::istringstream ss(command);
-    // Traverse through all words
-    do {
-        // Read a word
-        std::string word;
-        ss >> word;
-        if(!word.empty()){
-            commands << QString::fromStdString(word);
-        }
-    } while (ss);
 }
 
 void Bot::sendTextMessageToUser(const QString&user_id,const QString&message)
 {
-    send_request.setUrl(QUrl(telegram_api_url+"bot"+bot_token+"/sendMessage?chat_id=" + user_id + "&text=" + message));
+    send_request.setUrl(QUrl(TELEGRAM_API_URL+"bot"+BOT_TOKEN+"/sendMessage?chat_id=" + user_id + "&text=" + message));
     send_access_manager.get(send_request);
 }
 
 void Bot::sendGetFileRequest(const QString &file_id)
 {
-    file_request.setUrl(telegram_api_url+"bot"+bot_token+"/getFile?file_id="+file_id);
+    file_request.setUrl(TELEGRAM_API_URL+"bot"+BOT_TOKEN+"/getFile?file_id="+file_id);
     file_access_manager.get(file_request);
 }

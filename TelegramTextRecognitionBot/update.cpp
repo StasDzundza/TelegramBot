@@ -25,7 +25,7 @@ Message *Update::getMessage() const
     return message.get();
 }
 
-QString Update::toString()
+QString Update::toString() const
 {
     QString update_info;
     update_info += "Update id = " + QString::number(update_id) + '\n';
