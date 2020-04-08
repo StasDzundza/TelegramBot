@@ -39,3 +39,18 @@ QString TextReader::getTextAfterNthWord(const QString &text,int word_num)
     }
     return text_after_nth_word;
 }
+
+QVector<QString> TextReader::getFirstNWords(const QString &text, int n)
+{
+    QVector<QString> words;
+    std::string command = text.toStdString();
+    std::istringstream ss(command);
+    while(n-- && ss){
+        std::string word;
+        ss >> word;
+        if(!word.empty()){
+           words << QString::fromStdString(word);
+        }
+    }
+    return words;
+}

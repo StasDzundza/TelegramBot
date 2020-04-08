@@ -28,7 +28,7 @@ void Bot::receiveUpdates(QNetworkReply *reply)
 {
     if(reply->error() == QNetworkReply::NoError){
         QByteArray telegram_answer = reply->readAll();
-        //std::cout << telegram_answer.toStdString() << std::endl;
+        std::cout << telegram_answer.toStdString() << std::endl;
         QJsonDocument json_document = QJsonDocument::fromJson(telegram_answer);
         QJsonObject rootObject = json_document.object();
         QVector<Update*> updates = TelegramTypesFactory::parseUpdates(rootObject);
@@ -49,16 +49,60 @@ void Bot::receiveUpdates(QNetworkReply *reply)
 void Bot::processUpdate(const Update *update)
 {
     if(!update->getMessage()->getText().isEmpty()){
-        QVector<QString>commands = TextReader::splitTextByWords(update->getMessage()->getText());
-        if(commands.at(0) == "/translate_text" and commands.size() >= 4){
-            QString text_to_translate = TextReader::getTextAfterNthWord(update->getMessage()->getText(),3);
-            QPointer<Translater> translater = new Translater(this,update->getMessage()->getUser()->getId());
-            translater->translateText(text_to_translate,commands.at(1),commands.at(2));
+        int user_id = update->getMessage()->getUser()->getId();
+        if((VALID_COMMANDS.find(update->getMessage()->getText()) != VALID_COMMANDS.end()) ||
+                (last_user_commands.contains(user_id) && !last_user_commands[user_id].isEmpty())){//check if commannd is valid
+            if(last_user_commands.contains(user_id)){
+                if(!last_user_commands[user_id].isEmpty()){
+                    executeUserCommand(update);
+                    last_user_commands[user_id].clear();
+                }else{
+                    last_user_commands[user_id] = update->getMessage()->getText();
+                    sendReplyToUserCommand(update);
+                }
+            }else{
+                last_user_commands[user_id] = update->getMessage()->getText();
+                sendReplyToUserCommand(update);
+            }
         }else{
-            sendGetFileRequest(update->getMessage()->getPhotoId());
-            sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),update->toString() + INVALID_COMMAND);
+            sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),INVALID_COMMAND);
         }
     }
+}
+
+void Bot::executeUserCommand(const Update *update)
+{
+    int user_id = update->getMessage()->getUser()->getId();
+    QString last_user_command = last_user_commands[user_id];
+    if(last_user_command == "/translate_text"){
+        QVector<QString>languages = TextReader::getFirstNWords(update->getMessage()->getText(),2);
+        QString text_to_translate = TextReader::getTextAfterNthWord(update->getMessage()->getText(),2);
+        if(!text_to_translate.isEmpty() and languages.size() == 2){
+            QPointer<Translater> translater = new Translater(this,user_id);
+            translater->translateText(text_to_translate,languages.at(0),languages.at(1));
+        }else{
+            sendTextMessageToUser(QString::number(user_id),update->toString() + INVALID_COMMAND);
+        }
+    }else if(last_user_command == "/translate_file"){
+        //sendGetFileRequest(update->getMessage()->getPhotoId());
+        //sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),update->toString() + INVALID_COMMAND);
+    }
+
+}
+
+void Bot::sendReplyToUserCommand(const Update *update)
+{
+    int user_id = update->getMessage()->getUser()->getId();
+    QString last_user_command = last_user_commands[user_id];
+    QString reply;
+    if(last_user_command == "/translate_text"){
+        reply = "Send text to the bot in format : <source_lang> <target_lang> <some text>.\nSource and target languages should be in 2-letter format."
+                "For example : English - en, Russian - ru.\nAlso bot can detect source language. For that write to <souce_lang> auto.";
+    }else if(last_user_command == "/translate_file"){
+        reply = "Send text file to the bot with capture : <source_lang> <target_lang>.\nSource and target languages should be in 2-letter format."
+                "For example : English - en, Russian - ru.\nAlso bot can detect source language. For that write to <souce_lang> auto.";
+    }
+    sendTextMessageToUser(QString::number(user_id),reply);
 }
 
 void Bot::receiveTranslatedText(const QString &translated_text, int user_id)

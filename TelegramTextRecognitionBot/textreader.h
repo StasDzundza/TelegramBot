@@ -12,6 +12,8 @@ public:
     static QVector<QString> splitTextByWords(const QString& text);
 
     static QString getTextAfterNthWord(const QString& text,int word_num);
+
+    static QVector<QString> getFirstNWords(const QString& text,int n);
 };
 
 #endif // TEXTREADER_H
