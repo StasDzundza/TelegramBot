@@ -8,6 +8,7 @@
 #include <QMap>
 #include <set>
 #include "translater.h"
+#include "filedownloader.h"
 #include "update.h"
 
 class Bot : public QObject
@@ -16,9 +17,12 @@ class Bot : public QObject
 public:
     Bot();
     void start();
+    friend class TelegramFileDownloader;
 
 public slots:
     void receiveTranslatedText(const QString&translated_text,int user_id);
+
+    void receiveLocalFilePath(const QString&local_file_path,int user_id);
 
 private slots:
     void receiveUpdates(QNetworkReply*reply);

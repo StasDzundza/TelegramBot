@@ -34,11 +34,11 @@ void Bot::receiveUpdates(QNetworkReply *reply)
         QVector<Update*> updates = TelegramTypesFactory::parseUpdates(rootObject);
         int newest_update_id = -1;
         foreach(Update *update,updates){
-            std::cout << update->getMessage()->getText().toStdString() << std::endl;
             if(update->getUpdateId() > newest_update_id){
                 newest_update_id = update->getUpdateId();
             }
-            processUpdate(update);
+            //processUpdate(update);
+            sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),QString::fromStdString(telegram_answer.toStdString()));
             delete update;
         }
         update_request.setUrl(QUrl(TELEGRAM_API_URL+"bot"+BOT_TOKEN+"/getUpdates?offset=" + QString::number(newest_update_id+1)));
@@ -84,8 +84,8 @@ void Bot::executeUserCommand(const Update *update)
             sendTextMessageToUser(QString::number(user_id),update->toString() + INVALID_COMMAND);
         }
     }else if(last_user_command == "/translate_file"){
-        //sendGetFileRequest(update->getMessage()->getPhotoId());
-        //sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),update->toString() + INVALID_COMMAND);
+        QPointer<TelegramFileDownloader> file_downloader = new TelegramFileDownloader(this,user_id);
+        file_downloader->downloadFile(update->getMessage()->getDocument()->getFileId());
     }
 
 }
@@ -96,7 +96,7 @@ void Bot::sendReplyToUserCommand(const Update *update)
     QString last_user_command = last_user_commands[user_id];
     QString reply;
     if(last_user_command == "/translate_text"){
-        reply = "Send text to the bot in format : <source_lang> <target_lang> <some text>.\nSource and target languages should be in 2-letter format."
+        reply = "Send text to the bot in format : <source_lang> <target_lang> <some text>.\nSource and target languages should be in 2-letter format. "
                 "For example : English - en, Russian - ru.\nAlso bot can detect source language. For that write to <souce_lang> auto.";
     }else if(last_user_command == "/translate_file"){
         reply = "Send text file to the bot with capture : <source_lang> <target_lang>.\nSource and target languages should be in 2-letter format."
@@ -112,6 +112,15 @@ void Bot::receiveTranslatedText(const QString &translated_text, int user_id)
     }
     else {
         sendTextMessageToUser(QString::number(user_id),translated_text);
+    }
+}
+
+void Bot::receiveLocalFilePath(const QString &local_file_path, int user_id)
+{
+    if(!local_file_path.isEmpty()){
+        sendTextMessageToUser(QString::number(user_id),local_file_path);
+    }else{
+        sendTextMessageToUser(QString::number(user_id),"File receiving error! Try again.");
     }
 }
 

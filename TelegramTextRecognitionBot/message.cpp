@@ -1,5 +1,5 @@
 #include "message.h"
-#include <memory>
+
 Message::Message()
 {
 
@@ -11,6 +11,16 @@ void Message::setUser(const User &user){
 
 User *Message::getUser(){
     return user.get();
+}
+
+void Message::setDocument(const Document &document)
+{
+    this->document = std::make_shared<Document>(document);
+}
+
+Document *Message::getDocument()
+{
+    return document.get();
 }
 
 int Message::getMessageId() const
@@ -33,16 +43,6 @@ void Message::setText(const QString &text)
     this->text = text;
 }
 
-QString& Message::getPhotoId()
-{
-    return photo_id;
-}
-
-void Message::setPhotoId(const QString &photo_id)
-{
-    this->photo_id = photo_id;
-}
-
 QString Message::toString()
 {
     QString message_info;
@@ -50,6 +50,26 @@ QString Message::toString()
     message_info += "Message text : " + text + '\n';
     message_info += "User info : " + user->toString();
     return message_info;
+}
+
+QString Message::getCaption() const
+{
+    return caption;
+}
+
+void Message::setCaption(const QString &value)
+{
+    caption = value;
+}
+
+QString Message::getFilename() const
+{
+    return filename;
+}
+
+void Message::setFilename(const QString &value)
+{
+    filename = value;
 }
 
 

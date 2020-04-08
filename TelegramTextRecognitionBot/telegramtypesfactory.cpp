@@ -32,14 +32,18 @@ Message *TelegramTypesFactory::createMessage(const QJsonObject &message_json_obj
     Message* message = new Message();
     int message_id = message_json_object["message_id"].toInt();
     QString text = message_json_object["text"].toString();
+    QString caption = message_json_object["caption"].toString();
     User *user = createUser(message_json_object["from"].toObject());
+    Document *doc = createDocument(message_json_object["document"].toObject());
     message->setMessageId(message_id);
     message->setUser(*user);
+    message->setDocument(*doc);
     message->setText(text);
-    QJsonArray photos = message_json_object["photo"].toArray();
+    message->setCaption(caption);
+    /*QJsonArray photos = message_json_object["photo"].toArray();
     int best_quality_photo_index = photos.size() - 1;
     QJsonObject photo_json_object = photos.takeAt(best_quality_photo_index - 1).toObject();
-    message->setPhotoId(photo_json_object["file_id"].toString());
+    message->setPhotoId(photo_json_object["file_id"].toString());*/
     return message;
 }
 
@@ -63,4 +67,18 @@ File *TelegramTypesFactory::createFile(const QJsonObject &file_json_object)
     file->setFilePath(file_path);
     file->setFileSize(file_size);
     return file;
+}
+
+Document *TelegramTypesFactory::createDocument(const QJsonObject &document_json_object)
+{
+    Document*doc = new Document();
+    QString file_name = document_json_object["file_name"].toString();
+    QString mime_type = document_json_object["mime_type"].toString();
+    QString file_id = document_json_object["file_id"].toString();
+    int file_size = document_json_object["file_size"].toInt();
+    doc->setFileName(file_name);
+    doc->setMimeType(mime_type);
+    doc->setFileId(file_id);
+    doc->setFileSize(file_size);
+    return doc;
 }

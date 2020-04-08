@@ -2,7 +2,7 @@ QT += gui
 QT += network
 QT += core
 
-CONFIG += c++11 console
+CONFIG += c++14 console
 CONFIG -= app_bundle
 
 # The following define makes your compiler emit warnings if you use
@@ -23,9 +23,11 @@ SOURCES += \
     user.cpp \
     telegramtypesfactory.cpp \
     update.cpp \
-    file.cpp \
     translater.cpp \
-    textreader.cpp
+    textreader.cpp \
+    filedownloader.cpp \
+    document.cpp \
+    file.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -38,6 +40,8 @@ HEADERS += \
     user.h \
     telegramtypesfactory.h \
     update.h \
-    file.h \
     translater.h \
-    textreader.h
+    textreader.h \
+    filedownloader.h \
+    document.h \
+    file.h

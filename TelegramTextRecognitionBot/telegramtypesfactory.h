@@ -19,6 +19,8 @@ public:
     static User *createUser(const QJsonObject&user_json_object);
 
     static File *createFile(const QJsonObject&file_json_object);
+
+    static Document *createDocument(const QJsonObject&document_json_object);
 };
 
 #endif // TELEGRAMTYPESFACTORY_H
