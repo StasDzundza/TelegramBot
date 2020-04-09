@@ -5,6 +5,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include "update.h"
 
 class Bot;
 
@@ -12,12 +13,14 @@ class TelegramFileDownloader : public QObject
 {
     Q_OBJECT
 public:
-    explicit TelegramFileDownloader(Bot*bot,int user_id);
+    explicit TelegramFileDownloader(const Bot*bot);
 
-    void downloadFile(const QString&file_id);
+    void downloadDocument(Update*update);
+
+    void downloadPhoto(Update*update);
 
 signals:
-    void sendLocalFilePath(const QString&,int);
+    void sendLocalFilePath(const QString&,Update*);
 
 private slots:
     void receiveFileData(QNetworkReply*);
@@ -25,8 +28,8 @@ private slots:
     void receiveFilePath(QNetworkReply*);
 
 private:
-    Bot *bot;
-    int user_id;
+    const Bot *bot;
+    Update*update;
 
     QNetworkAccessManager file_path_access_manager;
     QNetworkRequest file_path_request;

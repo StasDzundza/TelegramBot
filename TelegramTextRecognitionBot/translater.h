@@ -17,6 +17,8 @@ public:
 
     void translateText(const QString& text,const QString&langFrom, const QString&langTo);
 
+    void translateFile(const QString& file_path,const QString&langFrom, const QString&langTo);
+
     void translateTextOnImage(const QImage&text, const QString&langTo);
 
 signals:

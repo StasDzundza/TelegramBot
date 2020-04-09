@@ -12,10 +12,8 @@ Bot::Bot()
     QSslConfiguration sslConfiguration(QSslConfiguration::defaultConfiguration());
     update_request.setSslConfiguration(sslConfiguration);
     send_request.setSslConfiguration(sslConfiguration);
-    file_request.setSslConfiguration(sslConfiguration);
     connect(&update_access_manager, SIGNAL(finished(QNetworkReply*)),this, SLOT(receiveUpdates(QNetworkReply*)));
-    connect(&send_access_manager, SIGNAL(finished(QNetworkReply*)),this, SLOT(sendResultHandler(QNetworkReply*)));
-    connect(&file_access_manager, SIGNAL(finished(QNetworkReply*)),this, SLOT(receiveFile(QNetworkReply*)));
+    connect(&send_access_manager, SIGNAL(finished(QNetworkReply*)),this, SLOT(receiveSendingResult(QNetworkReply*)));
 }
 
 void Bot::start()
@@ -37,25 +35,22 @@ void Bot::receiveUpdates(QNetworkReply *reply)
             if(update->getUpdateId() > newest_update_id){
                 newest_update_id = update->getUpdateId();
             }
-            //processUpdate(update);
-            sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),QString::fromStdString(telegram_answer.toStdString()));
-            delete update;
+            processUpdate(update);
         }
         update_request.setUrl(QUrl(TELEGRAM_API_URL+"bot"+BOT_TOKEN+"/getUpdates?offset=" + QString::number(newest_update_id+1)));
         update_access_manager.get(update_request);
     }
 }
 
-void Bot::processUpdate(const Update *update)
+void Bot::processUpdate(Update *update)
 {
-    if(!update->getMessage()->getText().isEmpty()){
+    if(!update->getMessage()->isEmpty()){
         int user_id = update->getMessage()->getUser()->getId();
         if((VALID_COMMANDS.find(update->getMessage()->getText()) != VALID_COMMANDS.end()) ||
                 (last_user_commands.contains(user_id) && !last_user_commands[user_id].isEmpty())){//check if commannd is valid
             if(last_user_commands.contains(user_id)){
                 if(!last_user_commands[user_id].isEmpty()){
                     executeUserCommand(update);
-                    last_user_commands[user_id].clear();
                 }else{
                     last_user_commands[user_id] = update->getMessage()->getText();
                     sendReplyToUserCommand(update);
@@ -70,7 +65,7 @@ void Bot::processUpdate(const Update *update)
     }
 }
 
-void Bot::executeUserCommand(const Update *update)
+void Bot::executeUserCommand(Update *update)
 {
     int user_id = update->getMessage()->getUser()->getId();
     QString last_user_command = last_user_commands[user_id];
@@ -83,11 +78,12 @@ void Bot::executeUserCommand(const Update *update)
         }else{
             sendTextMessageToUser(QString::number(user_id),update->toString() + INVALID_COMMAND);
         }
-    }else if(last_user_command == "/translate_file"){
-        QPointer<TelegramFileDownloader> file_downloader = new TelegramFileDownloader(this,user_id);
-        file_downloader->downloadFile(update->getMessage()->getDocument()->getFileId());
+    }else if(last_user_command == "/translate_file"){        
+        if(!update->getMessage()->getDocument()->isEmpty()){
+            QPointer<TelegramFileDownloader> file_downloader = new TelegramFileDownloader(this);
+            file_downloader->downloadDocument(update);
+        }
     }
-
 }
 
 void Bot::sendReplyToUserCommand(const Update *update)
@@ -99,7 +95,7 @@ void Bot::sendReplyToUserCommand(const Update *update)
         reply = "Send text to the bot in format : <source_lang> <target_lang> <some text>.\nSource and target languages should be in 2-letter format. "
                 "For example : English - en, Russian - ru.\nAlso bot can detect source language. For that write to <souce_lang> auto.";
     }else if(last_user_command == "/translate_file"){
-        reply = "Send text file to the bot with capture : <source_lang> <target_lang>.\nSource and target languages should be in 2-letter format."
+        reply = "Send text file to the bot with caption : <source_lang> <target_lang>.\nSource and target languages should be in 2-letter format."
                 "For example : English - en, Russian - ru.\nAlso bot can detect source language. For that write to <souce_lang> auto.";
     }
     sendTextMessageToUser(QString::number(user_id),reply);
@@ -115,32 +111,39 @@ void Bot::receiveTranslatedText(const QString &translated_text, int user_id)
     }
 }
 
-void Bot::receiveLocalFilePath(const QString &local_file_path, int user_id)
+void Bot::receiveLocalFilePath(const QString &local_file_path,Update*update)
 {
     if(!local_file_path.isEmpty()){
-        sendTextMessageToUser(QString::number(user_id),local_file_path);
+        int user_id = update->getMessage()->getUser()->getId();
+        QString last_user_command = last_user_commands[user_id];
+        if(last_user_command == "/translate_file"){
+            QString mime_type = update->getMessage()->getDocument()->getMimeType();
+            QString image_type = "image";
+            if(std::search(mime_type.begin(),mime_type.end(),image_type.begin(),image_type.end()) == mime_type.end()){
+                QPointer<Translater> translater = new Translater(this,user_id);
+                QString caption = update->getMessage()->getCaption();
+                QString langFrom = TextReader::getNthWord(caption,1);
+                QString langTo = TextReader::getNthWord(caption,2);
+                translater->translateFile(local_file_path,langFrom,langTo);
+                last_user_commands[user_id].clear();
+            }else{
+                sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),INVALID_TYPE_OF_TEXT_FILE);
+            }
+        }else{
+            sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),INVALID_COMMAND);
+        }
     }else{
-        sendTextMessageToUser(QString::number(user_id),"File receiving error! Try again.");
+        sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),"File receiving error! Try again.");
     }
+    delete update;
 }
 
-void Bot::sendResultHandler(QNetworkReply *reply)
+void Bot::receiveSendingResult(QNetworkReply *reply)
 {
     if(reply->error() == QNetworkReply::NoError){
         std::cout << "send Success" << std::endl;
     }else{
         std::cout << "send Error" << std::endl;
-    }
-}
-
-void Bot::receiveFile(QNetworkReply *reply)
-{
-    if(reply->error() == QNetworkReply::NoError){
-        QByteArray telegram_answer = reply->readAll();
-        QJsonDocument json_document = QJsonDocument::fromJson(telegram_answer);
-        QJsonObject rootObject = json_document.object();
-        File *file = TelegramTypesFactory::createFile(rootObject);
-        std::cout << TELEGRAM_API_URL.toStdString() <<"file/bot"<< BOT_TOKEN.toStdString() << '/' << file->getFilePath().toStdString() << std::endl;
     }
 }
 
@@ -150,8 +153,3 @@ void Bot::sendTextMessageToUser(const QString&user_id,const QString&message)
     send_access_manager.get(send_request);
 }
 
-void Bot::sendGetFileRequest(const QString &file_id)
-{
-    file_request.setUrl(TELEGRAM_API_URL+"bot"+BOT_TOKEN+"/getFile?file_id="+file_id);
-    file_access_manager.get(file_request);
-}

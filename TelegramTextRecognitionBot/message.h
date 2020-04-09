@@ -13,22 +13,16 @@ public:
     Message();
 
     void setUser(const User&user);
-    User* getUser();
+    User* getUser()const;
 
     void setDocument(const Document&document);
-    Document *getDocument();
+    Document *getDocument()const;
 
     int getMessageId() const;
     void setMessageId(int value);
 
     QString getText() const;
     void setText(const QString &value);
-
-    QString getPhotoId() const;
-    void setPhotoId(const QString &value);
-
-    QString getDocumentId() const;
-    void setDocumentId(const QString &value);
 
     QString toString();
 
@@ -37,6 +31,8 @@ public:
 
     QString getFilename() const;
     void setFilename(const QString &value);
+
+    bool isEmpty();
 
 private:
     int message_id = -1;

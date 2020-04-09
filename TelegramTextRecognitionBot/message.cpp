@@ -9,7 +9,7 @@ void Message::setUser(const User &user){
     this->user = std::make_shared<User>(user);
 }
 
-User *Message::getUser(){
+User *Message::getUser()const{
     return user.get();
 }
 
@@ -18,7 +18,7 @@ void Message::setDocument(const Document &document)
     this->document = std::make_shared<Document>(document);
 }
 
-Document *Message::getDocument()
+Document *Message::getDocument()const
 {
     return document.get();
 }
@@ -70,6 +70,11 @@ QString Message::getFilename() const
 void Message::setFilename(const QString &value)
 {
     filename = value;
+}
+
+bool Message::isEmpty()
+{
+    return text.isEmpty() && document->isEmpty();
 }
 
 

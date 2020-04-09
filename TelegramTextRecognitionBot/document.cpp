@@ -44,3 +44,8 @@ void Document::setMimeType(QString mime_type)
 {
     this->mime_type = mime_type;
 }
+
+bool Document::isEmpty()
+{
+    return this->file_id.isEmpty();
+}

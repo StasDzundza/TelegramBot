@@ -19,6 +19,8 @@ public:
 
     QString getMimeType()const;
     void setMimeType(QString mime_type);
+
+    bool isEmpty();
 private:
     int file_size;
     QString file_name,mime_type,file_id;

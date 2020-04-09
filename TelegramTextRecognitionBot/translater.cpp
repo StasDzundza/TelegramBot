@@ -3,6 +3,7 @@
 #include <QJsonValue>
 #include "bot.h"
 #include "translater.h"
+#include "textreader.h"
 
 Translater::Translater(Bot *bot, int user_id) : QObject(nullptr),bot(bot),user_id(user_id)
 {
@@ -20,6 +21,12 @@ void Translater::translateText(const QString& text,const QString&langFrom, const
     QString requestUrl = translator_url + "?source=" + langFrom + "&target=" + langTo + "&input=" + text.toUtf8();
     translate_request.setUrl(QUrl(requestUrl));
     translate_access_manager.get(translate_request);
+}
+
+void Translater::translateFile(const QString &file_path, const QString &langFrom, const QString &langTo)
+{
+    QString text = TextReader::readFile(file_path);
+    translateText(text,langFrom,langTo);
 }
 
 void Translater::translateTextOnImage(const QImage &text, const QString &langTo)
