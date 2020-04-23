@@ -5,6 +5,8 @@ QT += core
 CONFIG += c++14 console
 CONFIG -= app_bundle
 
+DEFINES += _CRT_SECURE_NO_WARNINGS
+
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -27,7 +29,8 @@ SOURCES += \
     textreader.cpp \
     filedownloader.cpp \
     document.cpp \
-    file.cpp
+    file.cpp \
+    tesseractocr.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -44,4 +47,19 @@ HEADERS += \
     textreader.h \
     filedownloader.h \
     document.h \
-    file.h
+    file.h \
+    tesseractocr.h
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/tesseract-include/ -lliblept168
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/tesseract-include/ -lliblept168
+else:unix: LIBS += -L$$PWD/tesseract-include/ -lliblept168
+
+INCLUDEPATH += $$PWD/tesseract-include/leptonica
+DEPENDPATH += $$PWD/tesseract-include/leptonica
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/tesseract-include/ -llibtesseract302
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/tesseract-include/ -llibtesseract302
+else:unix: LIBS += -L$$PWD/tesseract-include/ -llibtesseract302
+
+INCLUDEPATH += $$PWD/tesseract-include/tesseract
+DEPENDPATH += $$PWD/tesseract-include/tesseract

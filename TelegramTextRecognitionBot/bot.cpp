@@ -6,6 +6,7 @@
 #include "bot.h"
 #include "telegramtypesfactory.h"
 #include "textreader.h"
+#include "tesseractocr.h"
 
 Bot::Bot()
 {
@@ -78,10 +79,27 @@ void Bot::executeUserCommand(Update *update)
         }else{
             sendTextMessageToUser(QString::number(user_id),update->toString() + INVALID_COMMAND);
         }
-    }else if(last_user_command == "/translate_file"){        
-        if(!update->getMessage()->getDocument()->isEmpty()){
+        last_user_commands[user_id].clear();
+        delete update;
+    }else if(last_user_command == "/translate_file"){
+        QString mime_type = update->getMessage()->getDocument()->getMimeType();
+        QString image_type = "image";
+        auto it = std::search(mime_type.begin(),mime_type.end(),image_type.begin(),image_type.end());
+        if(!update->getMessage()->getDocument()->isEmpty() && it == mime_type.end()){
             QPointer<TelegramFileDownloader> file_downloader = new TelegramFileDownloader(this);
             file_downloader->downloadDocument(update);
+        }else{
+            sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),INVALID_TYPE_OF_TEXT_FILE);
+        }
+    }else if(last_user_command == "/recognize_photo"){
+        QString mime_type = update->getMessage()->getDocument()->getMimeType();
+        QString image_type = "image";
+        auto it = std::search(mime_type.begin(),mime_type.end(),image_type.begin(),image_type.end());
+        if(!update->getMessage()->getDocument()->isEmpty() && it != mime_type.end()){
+            QPointer<TelegramFileDownloader> file_downloader = new TelegramFileDownloader(this);
+            file_downloader->downloadDocument(update);
+        }else{
+            sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),INVALID_TYPE_OF_TEXT_FILE);
         }
     }
 }
@@ -117,21 +135,20 @@ void Bot::receiveLocalFilePath(const QString &local_file_path,Update*update)
         int user_id = update->getMessage()->getUser()->getId();
         QString last_user_command = last_user_commands[user_id];
         if(last_user_command == "/translate_file"){
-            QString mime_type = update->getMessage()->getDocument()->getMimeType();
-            QString image_type = "image";
-            if(std::search(mime_type.begin(),mime_type.end(),image_type.begin(),image_type.end()) == mime_type.end()){
-                QPointer<Translater> translater = new Translater(this,user_id);
-                QString caption = update->getMessage()->getCaption();
-                QString langFrom = TextReader::getNthWord(caption,1);
-                QString langTo = TextReader::getNthWord(caption,2);
-                translater->translateFile(local_file_path,langFrom,langTo);
-                last_user_commands[user_id].clear();
-            }else{
-                sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),INVALID_TYPE_OF_TEXT_FILE);
-            }
+            QPointer<Translater> translater = new Translater(this,user_id);
+            QString caption = update->getMessage()->getCaption();
+            QString langFrom = TextReader::getNthWord(caption,1);
+            QString langTo = TextReader::getNthWord(caption,2);
+            translater->translateFile(local_file_path,langFrom,langTo);
+        }else if(last_user_command == "/recognize_photo"){
+            QString caption = update->getMessage()->getCaption();
+            QString langFrom = TextReader::getNthWord(caption,1);
+            QString text = TesseractOCR::recognizeImage(local_file_path,langFrom);
+            sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),text);
         }else{
             sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),INVALID_COMMAND);
         }
+        last_user_commands[user_id].clear();
     }else{
         sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),"File receiving error! Try again.");
     }

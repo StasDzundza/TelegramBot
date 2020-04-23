@@ -1,6 +1,8 @@
 #include <QCoreApplication>
 #include <iostream>
 #include "bot.h"
+#include "baseapi.h"
+#include "allheaders.h"
 
 int main(int argc, char *argv[])
 {
