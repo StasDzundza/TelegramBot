@@ -19,18 +19,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp \
-    bot.cpp \
-    message.cpp \
-    user.cpp \
-    telegramtypesfactory.cpp \
-    update.cpp \
-    translater.cpp \
-    textreader.cpp \
-    filedownloader.cpp \
-    document.cpp \
-    file.cpp \
-    tesseractocr.cpp
+        src\sources\main.cpp \
+    src\sources\bot.cpp \
+    src\sources\TelegramTypes\message.cpp \
+    src\sources\TelegramTypes\user.cpp \
+    src\sources\telegramtypesfactory.cpp \
+    src\sources\TelegramTypes\update.cpp \
+    src\sources\translater.cpp \
+    src\sources\textreader.cpp \
+    src\sources\filedownloader.cpp \
+    src\sources\TelegramTypes\document.cpp \
+    src\sources\TelegramTypes\file.cpp \
+    src\sources\tesseractocr.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -38,28 +38,24 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    bot.h \
-    message.h \
-    user.h \
-    telegramtypesfactory.h \
-    update.h \
-    translater.h \
-    textreader.h \
-    filedownloader.h \
-    document.h \
-    file.h \
-    tesseractocr.h
+    include\bot.h \
+    src\headers\TelegramTypes\message.h \
+    src\headers\TelegramTypes\user.h \
+    src\headers\telegramtypesfactory.h \
+    src\headers\TelegramTypes\update.h \
+    src\headers\translater.h \
+    src\headers\textreader.h \
+    src\headers\filedownloader.h \
+    src\headers\TelegramTypes\document.h \
+    src\headers\TelegramTypes\file.h \
+    include\tesseractocr.h
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/tesseract-include/ -lliblept168
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/tesseract-include/ -lliblept168
-else:unix: LIBS += -L$$PWD/tesseract-include/ -lliblept168
+INCLUDEPATH += $$PWD/include
+INCLUDEPATH += $$PWD/src/headers
+INCLUDEPATH += $$PWD/src/headers/TelegramTypes
 
-INCLUDEPATH += $$PWD/tesseract-include/leptonica
-DEPENDPATH += $$PWD/tesseract-include/leptonica
+INCLUDEPATH += $$PWD/TesseractOCR/tesseract-include/tesseract
+LIBS += -L"$$PWD/TesseractOCR/tesseract-include/" -llibtesseract302
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/tesseract-include/ -llibtesseract302
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/tesseract-include/ -llibtesseract302
-else:unix: LIBS += -L$$PWD/tesseract-include/ -llibtesseract302
-
-INCLUDEPATH += $$PWD/tesseract-include/tesseract
-DEPENDPATH += $$PWD/tesseract-include/tesseract
+INCLUDEPATH += $$PWD/TesseractOCR/tesseract-include/leptonica
+LIBS += -L"$$PWD/TesseractOCR/tesseract-include/" -lliblept168

@@ -49,13 +49,8 @@ void Bot::processUpdate(Update *update)
         int user_id = update->getMessage()->getUser()->getId();
         if((VALID_COMMANDS.find(update->getMessage()->getText()) != VALID_COMMANDS.end()) ||
                 (last_user_commands.contains(user_id) && !last_user_commands[user_id].isEmpty())){//check if commannd is valid
-            if(last_user_commands.contains(user_id)){
-                if(!last_user_commands[user_id].isEmpty()){
-                    executeUserCommand(update);
-                }else{
-                    last_user_commands[user_id] = update->getMessage()->getText();
-                    sendReplyToUserCommand(update);
-                }
+            if(last_user_commands.contains(user_id) && !last_user_commands[user_id].isEmpty()){
+                executeUserCommand(update);
             }else{
                 last_user_commands[user_id] = update->getMessage()->getText();
                 sendReplyToUserCommand(update);
@@ -73,7 +68,7 @@ void Bot::executeUserCommand(Update *update)
     if(last_user_command == "/translate_text"){
         QVector<QString>languages = TextReader::getFirstNWords(update->getMessage()->getText(),2);
         QString text_to_translate = TextReader::getTextAfterNthWord(update->getMessage()->getText(),2);
-        if(!text_to_translate.isEmpty() and languages.size() == 2){
+        if(!text_to_translate.isEmpty() && languages.size() == 2){
             QPointer<Translater> translater = new Translater(this,user_id);
             translater->translateText(text_to_translate,languages.at(0),languages.at(1));
         }else{
@@ -92,12 +87,9 @@ void Bot::executeUserCommand(Update *update)
             sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),INVALID_TYPE_OF_TEXT_FILE);
         }
     }else if(last_user_command == "/recognize_photo"){
-        QString mime_type = update->getMessage()->getDocument()->getMimeType();
-        QString image_type = "image";
-        auto it = std::search(mime_type.begin(),mime_type.end(),image_type.begin(),image_type.end());
-        if(!update->getMessage()->getDocument()->isEmpty() && it != mime_type.end()){
+        if(!update->getMessage()->getPhotoId().isEmpty()){
             QPointer<TelegramFileDownloader> file_downloader = new TelegramFileDownloader(this);
-            file_downloader->downloadDocument(update);
+            file_downloader->downloadPhoto(update);
         }else{
             sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),INVALID_TYPE_OF_TEXT_FILE);
         }
@@ -115,6 +107,9 @@ void Bot::sendReplyToUserCommand(const Update *update)
     }else if(last_user_command == "/translate_file"){
         reply = "Send text file to the bot with caption : <source_lang> <target_lang>.\nSource and target languages should be in 2-letter format."
                 "For example : English - en, Russian - ru.\nAlso bot can detect source language. For that write to <souce_lang> auto.";
+    }else if(last_user_command == "/recognize_photo"){
+        reply = "Send photo to bot with caption : <source_lang>.\nSource language should be in 3-letter format."
+                "For example : English - eng, Russian - rus.";
     }
     sendTextMessageToUser(QString::number(user_id),reply);
 }

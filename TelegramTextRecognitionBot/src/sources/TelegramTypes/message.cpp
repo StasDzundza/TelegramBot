@@ -23,6 +23,16 @@ Document *Message::getDocument()const
     return document.get();
 }
 
+void Message::setPhotoId(const QString &photo_id)
+{
+    this->photo_id = photo_id;
+}
+
+QString Message::getPhotoId()
+{
+    return photo_id;
+}
+
 int Message::getMessageId() const
 {
     return message_id;
@@ -74,7 +84,7 @@ void Message::setFilename(const QString &value)
 
 bool Message::isEmpty()
 {
-    return text.isEmpty() && document->isEmpty();
+    return text.isEmpty() && document->isEmpty() && photo_id.isEmpty();
 }
 
 

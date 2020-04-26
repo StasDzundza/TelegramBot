@@ -23,7 +23,7 @@ void TelegramFileDownloader::downloadDocument(Update*update)
 void TelegramFileDownloader::downloadPhoto(Update*update)
 {
     this->update = update;
-    file_path_request.setUrl(QUrl(bot->TELEGRAM_API_URL+"bot"+bot->BOT_TOKEN+"/getFile?file_id="+"TODO"));//TODO class Photo in message
+    file_path_request.setUrl(QUrl(bot->TELEGRAM_API_URL+"bot"+bot->BOT_TOKEN+"/getFile?file_id=" + update->getMessage()->getPhotoId()));
     file_path_access_manager.get(file_path_request);
 }
 

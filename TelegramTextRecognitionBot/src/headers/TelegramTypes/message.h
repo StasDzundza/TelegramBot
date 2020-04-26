@@ -18,6 +18,9 @@ public:
     void setDocument(const Document&document);
     Document *getDocument()const;
 
+    void setPhotoId(const QString& photo_id);
+    QString getPhotoId();
+
     int getMessageId() const;
     void setMessageId(int value);
 
@@ -38,6 +41,7 @@ private:
     int message_id = -1;
     std::shared_ptr<User> user;
     std::shared_ptr<Document> document;
+    QString photo_id;
     QString text;
     QString caption;
     QString filename;

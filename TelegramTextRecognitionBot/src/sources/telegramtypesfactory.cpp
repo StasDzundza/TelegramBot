@@ -40,10 +40,10 @@ Message *TelegramTypesFactory::createMessage(const QJsonObject &message_json_obj
     message->setDocument(*doc);
     message->setText(text);
     message->setCaption(caption);
-    /*QJsonArray photos = message_json_object["photo"].toArray();
+    QJsonArray photos = message_json_object["photo"].toArray();
     int best_quality_photo_index = photos.size() - 1;
     QJsonObject photo_json_object = photos.takeAt(best_quality_photo_index - 1).toObject();
-    message->setPhotoId(photo_json_object["file_id"].toString());*/
+    message->setPhotoId(photo_json_object["file_id"].toString());
     return message;
 }
 

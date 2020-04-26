@@ -1,9 +1,10 @@
 #include "tesseractocr.h"
 #include <fstream>
+#include <QCoreApplication>
 
 QString TesseractOCR::recognizeImage(const QString &path_to_image, const QString &source_lang)
 {
-    /*//check if file exists
+    //check if file exists
     std::ifstream infile(path_to_image.toStdString());
     if (!infile.good()){
         return "";
@@ -12,13 +13,12 @@ QString TesseractOCR::recognizeImage(const QString &path_to_image, const QString
     //preprocess to convert to black white book-like text
     QString preprocessed_file = tesseractPreprocess(path_to_image);
 
-    return tesseractOcr(preprocessed_file,source_lang);*/
-    return "";
+    return tesseractOcr(preprocessed_file,source_lang);
 }
 
 QString TesseractOCR::tesseractPreprocess(const QString &source_file )
 {
-    /*char tempPath[128];
+    char tempPath[128];
     GetTempPathA(128, tempPath);
     strcat_s(tempPath, "preprocess_ocr.bmp");
 
@@ -47,8 +47,6 @@ QString TesseractOCR::tesseractPreprocess(const QString &source_file )
     l_int32 status = 1;
     l_float32 border_avg = 0.0f;
     PIX *pixs = nullptr;
-    char *ext = nullptr;
-
 
     // Read in source image
     pixs = pixRead(source_file.toStdString().c_str());
@@ -101,32 +99,26 @@ QString TesseractOCR::tesseractPreprocess(const QString &source_file )
         // Binarize
         status = pixOtsuAdaptiveThreshold(pixs, otsu_sx, otsu_sy, otsu_smoothx, otsu_smoothy, otsu_scorefract, NULL, &pixs);
     }
-
-
     // Write the image to file
     status = pixWriteImpliedFormat(preprocessed_file, pixs, 0, 0);
 
-
     QString out(preprocessed_file);
 
-    return out;*/
-    return "";
+    return out;
 }
 
 QString TesseractOCR::tesseractOcr(const QString &preprocessed_file,const QString &source_lang)
 {
-    /*Pix *image = pixRead(preprocessed_file.toStdString().c_str());
+    Pix *image = pixRead(preprocessed_file.toStdString().c_str());
     tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
 
-    TCHAR CurDir[MAX_PATH];
-    GetCurrentDirectory(MAX_PATH, CurDir);
-
-    api->Init("$$PWD", source_lang.toStdString().c_str());
+    QString appName = QCoreApplication::applicationName();
+    QString tesseract_train_data = "..\\" + appName + "\\TesseractOC";
+    api->Init(tesseract_train_data.toStdString().c_str(), source_lang.toStdString().c_str());
     api->SetPageSegMode(tesseract::PSM_AUTO_OSD); //PSM_SINGLE_BLOCK PSM_AUTO_OSD
 
 
     api->SetImage(image);
 
-    return api->GetUTF8Text();*/
-    return "";
+    return api->GetUTF8Text();
 }

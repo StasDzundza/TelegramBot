@@ -1,8 +1,8 @@
 #ifndef TESSERACTOCR_H
 #define TESSERACTOCR_H
 
-//#include <baseapi.h>
-//#include <allheaders.h>
+#include <baseapi.h>
+#include <allheaders.h>
 #include <QString>
 
 class TesseractOCR

@@ -34,7 +34,7 @@ private:
     const QString TELEGRAM_API_URL = "https://api.telegram.org/";
     const QString INVALID_COMMAND = "INVALID COMMAND. Write /commands and check valid and existing commands.";
     const QString INVALID_TYPE_OF_TEXT_FILE = "Invalide type of file. It should be text file, not image";
-    const std::set<QString> VALID_COMMANDS{"/translate_text","/translate_file"};
+    const std::set<QString> VALID_COMMANDS{"/translate_text","/translate_file","/recognize_photo"};
     QMap<int,QString> last_user_commands;
 
     QNetworkAccessManager update_access_manager;
