@@ -113,7 +113,7 @@ QString TesseractOCR::tesseractOcr(const QString &preprocessed_file,const QStrin
     tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
 
     QString appName = QCoreApplication::applicationName();
-    QString tesseract_train_data = "..\\" + appName + "\\TesseractOC";
+    QString tesseract_train_data = "..\\" + appName + "\\TesseractOCR";
     api->Init(tesseract_train_data.toStdString().c_str(), source_lang.toStdString().c_str());
     api->SetPageSegMode(tesseract::PSM_AUTO_OSD); //PSM_SINGLE_BLOCK PSM_AUTO_OSD
 

@@ -91,7 +91,7 @@ void Bot::executeUserCommand(Update *update)
             QPointer<TelegramFileDownloader> file_downloader = new TelegramFileDownloader(this);
             file_downloader->downloadPhoto(update);
         }else{
-            sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),INVALID_TYPE_OF_TEXT_FILE);
+            sendTextMessageToUser(QString::number(update->getMessage()->getUser()->getId()),INVALID_TYPE_OF_PHOTO_FILE);
         }
     }
 }
@@ -101,7 +101,11 @@ void Bot::sendReplyToUserCommand(const Update *update)
     int user_id = update->getMessage()->getUser()->getId();
     QString last_user_command = last_user_commands[user_id];
     QString reply;
-    if(last_user_command == "/translate_text"){
+    if(last_user_command == "/start"){
+        sendCommandKeyboardToUser(QString::number(user_id));
+        last_user_commands[user_id].clear();
+        return;
+    }else if(last_user_command == "/translate_text"){
         reply = "Send text to the bot in format : <source_lang> <target_lang> <some text>.\nSource and target languages should be in 2-letter format. "
                 "For example : English - en, Russian - ru.\nAlso bot can detect source language. For that write to <souce_lang> auto.";
     }else if(last_user_command == "/translate_file"){
@@ -112,6 +116,13 @@ void Bot::sendReplyToUserCommand(const Update *update)
                 "For example : English - eng, Russian - rus.";
     }
     sendTextMessageToUser(QString::number(user_id),reply);
+}
+
+void Bot::sendCommandKeyboardToUser(const QString &chat_id)
+{
+    send_request.setUrl(QUrl(TELEGRAM_API_URL+"bot"+BOT_TOKEN+"/sendMessage?chat_id=" + chat_id +"&text=Choose the command"
+        "&reply_markup={\"keyboard\": [[{\"text\" :\"/translate_text\"}],[{\"text\" :\"/translate_file\"}],[{\"text\" :\"/recognize_photo\"}]]}"));
+    send_access_manager.get(send_request);
 }
 
 void Bot::receiveTranslatedText(const QString &translated_text, int user_id)
@@ -154,6 +165,8 @@ void Bot::receiveSendingResult(QNetworkReply *reply)
 {
     if(reply->error() == QNetworkReply::NoError){
         std::cout << "send Success" << std::endl;
+        QString url = "http://jdbc.postgresql.org/download/postgresql-9.2-1002.jdbc4.jar";
+        sendDocumentToUser("chat_id",url);
     }else{
         std::cout << "send Error" << std::endl;
     }
@@ -162,6 +175,12 @@ void Bot::receiveSendingResult(QNetworkReply *reply)
 void Bot::sendTextMessageToUser(const QString&user_id,const QString&message)
 {
     send_request.setUrl(QUrl(TELEGRAM_API_URL+"bot"+BOT_TOKEN+"/sendMessage?chat_id=" + user_id + "&text=" + message));
+    send_access_manager.get(send_request);
+}
+
+void Bot::sendDocumentToUser(const QString &chat_id, const QString &doc_url)
+{
+    send_request.setUrl(QUrl(TELEGRAM_API_URL+"bot"+BOT_TOKEN+"/sendDocument?chat_id="+ chat_id + "&document=" + doc_url));
     send_access_manager.get(send_request);
 }
 
