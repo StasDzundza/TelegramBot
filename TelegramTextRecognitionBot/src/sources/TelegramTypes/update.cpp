@@ -1,10 +1,5 @@
 #include "update.h"
 
-Update::Update()
-{
-
-}
-
 int Update::getUpdateId() const
 {
     return update_id;

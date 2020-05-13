@@ -2,10 +2,6 @@
 
 #include "telegramtypesfactory.h"
 
-TelegramTypesFactory::TelegramTypesFactory(){
-
-}
-
 QVector<Update *> TelegramTypesFactory::parseUpdates(const QJsonObject &updates)
 {
     QVector<Update *> updates_vector;

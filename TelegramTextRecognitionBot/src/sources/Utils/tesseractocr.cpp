@@ -9,10 +9,8 @@ QString TesseractOCR::recognizeImage(const QString &path_to_image, const QString
     if (!infile.good()){
         return "";
     }
-
     //preprocess to convert to black white book-like text
     QString preprocessed_file = tesseractPreprocess(path_to_image);
-
     return tesseractOcr(preprocessed_file,source_lang);
 }
 
@@ -116,7 +114,6 @@ QString TesseractOCR::tesseractOcr(const QString &preprocessed_file,const QStrin
     QString tesseract_train_data = "..\\" + appName + "\\TesseractOCR";
     api->Init(tesseract_train_data.toStdString().c_str(), source_lang.toStdString().c_str());
     api->SetPageSegMode(tesseract::PSM_AUTO_OSD); //PSM_SINGLE_BLOCK PSM_AUTO_OSD
-
 
     api->SetImage(image);
 

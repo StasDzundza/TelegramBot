@@ -1,9 +1,5 @@
 #include "user.h"
 
-User::User(){
-
-}
-
 int User::getId() const
 {
     return id;

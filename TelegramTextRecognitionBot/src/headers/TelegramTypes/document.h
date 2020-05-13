@@ -6,7 +6,7 @@
 class Document
 {
 public:
-    Document();
+    Document()=default;
 
     QString getFileId()const;
     void setFileId(QString file_id);

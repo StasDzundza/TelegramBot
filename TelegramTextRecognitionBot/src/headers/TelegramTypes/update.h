@@ -6,7 +6,7 @@
 class Update
 {
 public:
-    Update();
+    Update()=default;
 
     int getUpdateId() const;
     void setUpdateId(int value);

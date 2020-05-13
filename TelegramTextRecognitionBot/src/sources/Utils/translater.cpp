@@ -29,11 +29,6 @@ void Translater::translateFile(const QString &file_path, const QString &langFrom
     translateText(text,langFrom,langTo);
 }
 
-void Translater::translateTextOnImage(const QImage &text, const QString &langTo)
-{
-
-}
-
 void Translater::receiveTranslate(QNetworkReply *translate_reply)
 {
     if(translate_reply->error() == QNetworkReply::NoError){

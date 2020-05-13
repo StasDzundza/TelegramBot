@@ -1,10 +1,5 @@
 #include "file.h"
 
-File::File()
-{
-
-}
-
 QString File::getFileId() const
 {
     return file_id;

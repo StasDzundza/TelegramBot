@@ -1,10 +1,5 @@
 #include "message.h"
 
-Message::Message()
-{
-
-}
-
 void Message::setUser(const User &user){
     this->user = std::make_shared<User>(user);
 }
@@ -86,5 +81,6 @@ bool Message::isEmpty()
 {
     return text.isEmpty() && document->isEmpty() && photo_id.isEmpty();
 }
+
 
 

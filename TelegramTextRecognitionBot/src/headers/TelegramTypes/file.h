@@ -6,7 +6,7 @@
 class File
 {
 public:
-    File();
+    File()=default;
     QString getFileId() const;
     void setFileId(const QString &value);
 

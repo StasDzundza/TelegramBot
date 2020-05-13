@@ -1,10 +1,5 @@
 #include "document.h"
 
-Document::Document()
-{
-
-}
-
 QString Document::getFileId() const
 {
     return file_id;

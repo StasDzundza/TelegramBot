@@ -1,6 +1,5 @@
 #include <sstream>
 #include <QFile>
-#include <QTextStream>
 #include "textreader.h"
 
 QVector<QString> TextReader::splitTextByWords(const QString &text)
@@ -11,7 +10,6 @@ QVector<QString> TextReader::splitTextByWords(const QString &text)
     std::istringstream ss(command);
     // Traverse through all words
     do {
-        // Read a word
         std::string word;
         ss >> word;
         if(!word.empty()){
@@ -80,17 +78,4 @@ QString TextReader::readFile(const QString &file_path)
         localFile.close();
         return file_data;
     }
-    /*
-    QFile file(file_path);
-    if(!file.open(QIODevice::ReadOnly)) {
-        return "";
-    }
-    QString file_data;
-    QTextStream in(&file);
-    while(!in.atEnd()) {
-        QString line = in.readLine();
-        file_data.append(line);
-    }
-    file.close();
-    return file_data;*/
 }

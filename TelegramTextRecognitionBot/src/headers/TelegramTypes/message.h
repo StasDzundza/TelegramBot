@@ -10,7 +10,7 @@
 class Message
 {
 public:
-    Message();
+    Message()=default;
 
     void setUser(const User&user);
     User* getUser()const;
@@ -45,6 +45,7 @@ private:
     QString text;
     QString caption;
     QString filename;
+    bool is_bot_command = false;
 };
 
 #endif // MESSAGE_H

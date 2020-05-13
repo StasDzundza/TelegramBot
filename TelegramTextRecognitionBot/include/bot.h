@@ -6,9 +6,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QMap>
-#include <set>
-#include "translater.h"
-#include "filedownloader.h"
+#include <QSet>
 #include "update.h"
 
 class Bot : public QObject
@@ -32,10 +30,13 @@ private slots:
 private:
     const QString BOT_TOKEN = "1055976603:AAHeHiEW4QLNKqGduZazziVToKlRe_gSN-8";
     const QString TELEGRAM_API_URL = "https://api.telegram.org/";
+
     const QString INVALID_COMMAND = "INVALID COMMAND. Write /commands and check valid and existing commands.";
-    const QString INVALID_TYPE_OF_TEXT_FILE = "Invalide type of file. It should be text file, not image";
-    const QString INVALID_TYPE_OF_PHOTO_FILE = "Invalide type of file. It should be image";
-    const std::set<QString> VALID_COMMANDS{"/start","/translate_text","/translate_file","/recognize_photo"};
+    const QString INVALID_TYPE_OF_TEXT_FILE = "Invalide type of file. It should be text file, not image.";
+    const QString INVALID_TYPE_OF_PHOTO_FILE = "Invalide type of file. It should be image.";
+
+    const QSet<QString> VALID_COMMANDS{"/start","/translate_text","/translate_file","/recognize_photo","/write_text_to_file"};
+
     QMap<int,QString> last_user_commands;
 
     QNetworkAccessManager update_access_manager;
@@ -48,16 +49,13 @@ private:
 
     void executeUserCommand(Update*update);
 
-    void sendTextMessageToUser(const QString& chat_id,const QString& message);
+    void sendTextMessageToUser(int chat_id,const QString& message);
 
-    void sendDocumentToUser(const QString& chat_id,const QString& doc_url);
+    void sendDocumentToUser(int chat_id,const QString& filename);
 
     void sendReplyToUserCommand(const Update*update);
 
-    void sendCommandKeyboardToUser(const QString& chat_id);
-
-
-
+    void sendCommandKeyboardToUser(int chat_id);
 };
 
 #endif // BOT_H

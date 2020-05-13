@@ -2,6 +2,7 @@
 #include "bot.h"
 #include "telegramtypesfactory.h"
 #include "QFile"
+#include <QJsonDocument>
 
 TelegramFileDownloader::TelegramFileDownloader(const Bot*bot) : QObject(nullptr),bot(bot)
 {
