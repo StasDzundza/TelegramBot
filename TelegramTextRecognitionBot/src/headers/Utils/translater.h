@@ -31,9 +31,11 @@ private:
     QNetworkAccessManager translate_access_manager;
     QNetworkRequest translate_request;
 
-    const QString x_rapid_host = "systran-systran-platform-for-language-processing-v1.p.rapidapi.com";
-    const QString x_rapid_key = "38ad4062ebmsh87a6e9de422268cp1a2e0ejsn6e9d57cfa81c";
-    const QString translator_url = "https://systran-systran-platform-for-language-processing-v1.p.rapidapi.com/translation/text/translate";
+    const QString x_rapid_host = "google-translate1.p.rapidapi.com";
+    const QString x_rapid_key = "37df3f18b8msh4672e6c02bb8340p1caad0jsn60400187e4e1";
+    const QString translator_url = "https://google-translate1.p.rapidapi.com/language/translate/v2";
+    const QString accept = "application/json";
+    const QString content_type = "application/x-www-form-urlencoded";
 
     QString parseTranslatedTextFromJson(const QJsonDocument& translate_result);
 };

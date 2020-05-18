@@ -11,16 +11,18 @@ Translater::Translater(Bot *bot, int user_id) : QObject(nullptr),bot(bot),user_i
     translate_request.setSslConfiguration(sslConfiguration);
     translate_request.setRawHeader(QByteArray("x-rapidapi-host"), QByteArray(x_rapid_host.toStdString().c_str()));
     translate_request.setRawHeader(QByteArray("x-rapidapi-key"), QByteArray(x_rapid_key.toStdString().c_str()));
+    translate_request.setRawHeader(QByteArray("accept-encoding"), QByteArray(accept.toStdString().c_str()));
+    translate_request.setRawHeader(QByteArray("content-type"), QByteArray(content_type.toStdString().c_str()));
     connect(&translate_access_manager, SIGNAL(finished(QNetworkReply*)),this, SLOT(receiveTranslate(QNetworkReply*)));
     connect(this, SIGNAL(sendTranslatedText(const QString&,int)),this->bot, SLOT(receiveTranslatedText(const QString&,int)));
-
 }
 
 void Translater::translateText(const QString& text,const QString&langFrom, const QString &langTo)
 {
-    QString requestUrl = translator_url + "?source=" + langFrom + "&target=" + langTo + "&input=" + text.toUtf8();
+    QString requestUrl = translator_url;
     translate_request.setUrl(QUrl(requestUrl));
-    translate_access_manager.get(translate_request);
+    QString post_data = "source="+langFrom+"&q="+text+"&target="+langTo;
+    translate_access_manager.post(translate_request,post_data.toStdString().c_str());
 }
 
 void Translater::translateFile(const QString &file_path, const QString &langFrom, const QString &langTo)
@@ -44,11 +46,12 @@ void Translater::receiveTranslate(QNetworkReply *translate_reply)
 QString Translater::parseTranslatedTextFromJson(const QJsonDocument &translate_result)
 {
     QJsonObject outputs = translate_result.object();
-    QJsonArray output = outputs["outputs"].toArray();
+    QJsonObject data = outputs["data"].toObject();
+    QJsonArray translations = data["translations"].toArray();
     QString translated_text;
-    foreach(auto&& json_value,output){
-        QJsonObject translate_json_object = json_value.toObject();
-        translated_text.append(translate_json_object["output"].toString());
+    for(auto&& translate_value:translations){
+        QJsonObject translate_json_object = translate_value.toObject();
+        translated_text+= translate_json_object["translatedText"].toString();
     }
     return translated_text;
 }
