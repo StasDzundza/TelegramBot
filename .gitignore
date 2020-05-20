@@ -1,8 +1,6 @@
 
 *.txt
 *.json
-tesseract-include/
-tessdata
 
 ### C++ ###
 # Prerequisites
