@@ -1,4 +1,5 @@
 #include <QJsonArray>
+#include <QJsonDocument>
 
 #include "telegramtypesfactory.h"
 
@@ -77,4 +78,20 @@ Document *TelegramTypesFactory::createDocument(const QJsonObject &document_json_
     doc->setFileId(file_id);
     doc->setFileSize(file_size);
     return doc;
+}
+
+QString TelegramTypesFactory::buildJsonCommandKeyboardObject(const QSet<QString> &commands)
+{
+    QJsonObject keyboard_json;
+    QJsonArray keyboard_buttons;
+    for(auto&command:commands){
+        QJsonObject button;
+        button.insert("text",command);
+        QJsonArray button_array;
+        button_array.push_back(button);
+        keyboard_buttons.push_back(button_array);
+    }
+    keyboard_json.insert("keyboard",keyboard_buttons);
+    QJsonDocument doc(keyboard_json);
+    return doc.toJson();
 }

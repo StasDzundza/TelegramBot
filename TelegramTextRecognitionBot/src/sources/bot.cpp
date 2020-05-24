@@ -141,20 +141,7 @@ void Bot::sendReplyToUserCommand(const Update *update)
 
 void Bot::sendCommandKeyboardToUser(int chat_id)
 {
-    QString reply_markup = "{\"keyboard\": [";
-    int i = 0;
-    for(auto &command: VALID_COMMANDS){
-        reply_markup+="[{\"text\" :\"";
-        reply_markup+=command;
-        reply_markup+="\"}]";
-        if(i == VALID_COMMANDS.size() - 1){
-            reply_markup+="]}";
-            break;
-        }else{
-            reply_markup+=",";
-        }
-        i++;
-    }
+    QString reply_markup = TelegramTypesFactory::buildJsonCommandKeyboardObject(VALID_COMMANDS);
     send_request.setUrl(QUrl(TELEGRAM_API_URL+"bot"+BOT_TOKEN+"/sendMessage?chat_id=" + QString::number(chat_id) +"&text=Choose the command"
     "&reply_markup=" + reply_markup));
     send_access_manager.get(send_request);
@@ -190,6 +177,10 @@ void Bot::receiveLocalFilePath(const QString &local_file_path,Update*update)
             QString langFrom = TextReader::getNthWord(caption,1);
             QString text = TesseractOCR::recognizeImage(local_file_path,langFrom);
             sendTextMessageToUser(user_id,text);
+            QString text_uid = QString::number(user_id);
+            QString filename = text_uid + ".txt";
+            FileWriter::writeToFile(filename,text);
+            sendDocumentToUser(user_id,filename);
         }else{
             sendTextMessageToUser(user_id,INVALID_COMMAND);
         }

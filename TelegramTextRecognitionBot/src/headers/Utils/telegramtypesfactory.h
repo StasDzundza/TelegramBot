@@ -1,9 +1,11 @@
 #ifndef TELEGRAMTYPESFACTORY_H
 #define TELEGRAMTYPESFACTORY_H
 
+#include "QJsonObject"
+#include <QSet>
+
 #include "update.h"
 #include "file.h"
-#include "QJsonObject"
 
 class TelegramTypesFactory
 {
@@ -21,6 +23,8 @@ public:
     static File *createFile(const QJsonObject&file_json_object);
 
     static Document *createDocument(const QJsonObject&document_json_object);
+
+    static QString buildJsonCommandKeyboardObject(const QSet<QString>& commands);
 };
 
 #endif // TELEGRAMTYPESFACTORY_H
