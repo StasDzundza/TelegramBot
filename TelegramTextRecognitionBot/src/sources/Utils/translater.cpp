@@ -4,6 +4,7 @@
 #include "bot.h"
 #include "translater.h"
 #include "textreader.h"
+#include <QDebug>
 
 Translater::Translater(Bot *bot, int user_id) : QObject(nullptr),bot(bot),user_id(user_id)
 {
@@ -40,6 +41,8 @@ void Translater::receiveTranslate(QNetworkReply *translate_reply)
         emit sendTranslatedText(translated_text.toUtf8(),user_id);
     }else{
         emit sendTranslatedText("",user_id);
+        QByteArray translater_answer = translate_reply->readAll();
+        qDebug()<<translater_answer;
     }
 }
 

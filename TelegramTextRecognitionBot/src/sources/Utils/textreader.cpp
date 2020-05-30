@@ -79,3 +79,4 @@ QString TextReader::readFile(const QString &file_path)
         return file_data;
     }
 }
+

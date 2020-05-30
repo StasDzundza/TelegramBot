@@ -24,7 +24,7 @@ public:
 
     static Document *createDocument(const QJsonObject&document_json_object);
 
-    static QString buildJsonCommandKeyboardObject(const QSet<QString>& commands);
+    static QString buildJsonCommandKeyboardObject(const QVector<QString> &buttons);
 };
 
 #endif // TELEGRAMTYPESFACTORY_H

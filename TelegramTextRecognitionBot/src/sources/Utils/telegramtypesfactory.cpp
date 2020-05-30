@@ -80,11 +80,11 @@ Document *TelegramTypesFactory::createDocument(const QJsonObject &document_json_
     return doc;
 }
 
-QString TelegramTypesFactory::buildJsonCommandKeyboardObject(const QSet<QString> &commands)
+QString TelegramTypesFactory::buildJsonCommandKeyboardObject(const QVector<QString> &buttons)
 {
     QJsonObject keyboard_json;
     QJsonArray keyboard_buttons;
-    for(auto&command:commands){
+    for(auto&command:buttons){
         QJsonObject button;
         button.insert("text",command);
         QJsonArray button_array;

@@ -34,8 +34,15 @@ private:
     const QString INVALID_COMMAND = "INVALID COMMAND. Write /commands and check valid and existing commands.";
     const QString INVALID_TYPE_OF_TEXT_FILE = "Invalide type of file. It should be text file, not image.";
     const QString INVALID_TYPE_OF_PHOTO_FILE = "Invalide type of file. It should be image.";
+    const QString DESCRIPTION = "This is awesome bot developed by @dzundza_stas, which can recognize printed and handwrited text,"
+                                "translate it to different languages and send result in text and file formats. Write /start command for "
+                                "start using it.";
+    const QString ABOUT = "Developed by Stanislav Dzundza(@dzundza_stas) during studying in Taras Shevchenko National University of Kyiv.";
 
-    const QSet<QString> VALID_COMMANDS{"/start","/translate_text","/translate_file","/recognize_photo","/write_text_to_file"};
+    const QSet<QString> VALID_COMMANDS{"/translate_text","/recognize_photo","/translate_photo","/translate_file","/write_text_to_file",
+                                       "/commands","/description","/about","/start"};
+    const QVector<QString> KEYBOARD_BUTTONS{"/translate_text","/recognize_photo","/translate_photo","/translate_file","/write_text_to_file",
+                                       "/commands","/description","/about"};
 
     QMap<int,QString> last_user_commands;
 

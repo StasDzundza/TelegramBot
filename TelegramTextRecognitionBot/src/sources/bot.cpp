@@ -53,7 +53,7 @@ void Bot::processUpdate(Update *update)
         int user_id = update->getMessage()->getUser()->getId();
         if(VALID_COMMANDS.contains(update->getMessage()->getText()) || //check if commannd is valid
                 (last_user_commands.contains(user_id) && !last_user_commands[user_id].isEmpty())){
-            if(last_user_commands.contains(user_id) && !last_user_commands[user_id].isEmpty()){
+            if(last_user_commands.contains(user_id) && !last_user_commands[user_id].isEmpty() && !VALID_COMMANDS.contains(update->getMessage()->getText())){
                 executeUserCommand(update);
             }else{
                 last_user_commands[user_id] = update->getMessage()->getText();
@@ -77,7 +77,7 @@ void Bot::executeUserCommand(Update *update)
         QString text_to_translate = TextReader::getTextAfterNthWord(update->getMessage()->getText(),2);
         if(!text_to_translate.isEmpty() && languages.size() == 2){
             QPointer<Translater> translater = new Translater(this,user_id);
-            translater->translateText(text_to_translate,languages.at(0),languages.at(1));
+            translater->translateText(text_to_translate,languages.at(0).toLower(),languages.at(1).toLower());
         }else{
             sendTextMessageToUser(user_id,update->toString() + INVALID_COMMAND);
         }
@@ -93,7 +93,7 @@ void Bot::executeUserCommand(Update *update)
         }else{
             sendTextMessageToUser(user_id,INVALID_TYPE_OF_TEXT_FILE);
         }
-    }else if(last_user_command == "/recognize_photo"){
+    }else if(last_user_command == "/recognize_photo" || last_user_command == "/translate_photo"){
         if(!update->getMessage()->getPhotoId().isEmpty()){
             QPointer<TelegramFileDownloader> file_downloader = new TelegramFileDownloader(this);
             file_downloader->downloadPhoto(update);
@@ -125,23 +125,38 @@ void Bot::sendReplyToUserCommand(const Update *update)
         last_user_commands[user_id].clear();
         return;
     }else if(last_user_command == "/translate_text"){
-        reply = "Send text to the bot in format : <source_lang> <target_lang> <some text>.\nSource and target languages should be in 2-letter format. "
-                "For example : English - en, Russian - ru.\nAlso bot can detect source language. For that write to <souce_lang> auto.";
+        reply = "Send text to the bot in format : <source_lang> <target_lang> <some text>.\nSource and target languages should be in 3-letter format. "
+                "For example : English - eng, Ukrainian - ukr.\nAlso bot can detect source language. For that write to <souce_lang> auto.";
     }else if(last_user_command == "/translate_file"){
-        reply = "Send text file to the bot with caption : <source_lang> <target_lang>.\nSource and target languages should be in 2-letter format."
-                "For example : English - en, Russian - ru.\nAlso bot can detect source language. For that write to <souce_lang> auto.";
+        reply = "Send text file to the bot with caption : <source_lang> <target_lang>.\nSource and target languages should be in 3-letter format."
+                "For example : English - en, Ukrainian - ukr.\nAlso bot can detect source language. For that write to <souce_lang> auto.";
     }else if(last_user_command == "/recognize_photo"){
         reply = "Send photo to bot with caption : <source_lang>.\nSource language should be in 3-letter format."
-                "For example : English - eng, Russian - rus.";
+                "For example : English - eng, Ukrainian - ukr.";
     }else if(last_user_command == "/write_text_to_file"){
         reply = "Send text message to bot in different language and bot will send file, which contains this text message";
+    }else if(last_user_command == "/translate_photo"){
+        reply = "Send photo to bot with caption : <source_lang> <target_lang>.\nSource and target languages should be in 3-letter format."
+                "For example : English - eng, Ukrainian - ukr.";
+    }else if(last_user_command == "/commands"){
+        reply = "Valid commands : \n";
+        for(auto command: VALID_COMMANDS){
+            reply += command + '\n';
+        }
+        last_user_commands[user_id].clear();
+    }else if(last_user_command == "/description"){
+        reply = DESCRIPTION;
+        last_user_commands[user_id].clear();
+    }else if(last_user_command == "/about"){
+        reply = ABOUT;
+        last_user_commands[user_id].clear();
     }
     sendTextMessageToUser(user_id,reply);
 }
 
 void Bot::sendCommandKeyboardToUser(int chat_id)
 {
-    QString reply_markup = TelegramTypesFactory::buildJsonCommandKeyboardObject(VALID_COMMANDS);
+    QString reply_markup = TelegramTypesFactory::buildJsonCommandKeyboardObject(KEYBOARD_BUTTONS);
     send_request.setUrl(QUrl(TELEGRAM_API_URL+"bot"+BOT_TOKEN+"/sendMessage?chat_id=" + QString::number(chat_id) +"&text=Choose the command"
     "&reply_markup=" + reply_markup));
     send_access_manager.get(send_request);
@@ -169,18 +184,25 @@ void Bot::receiveLocalFilePath(const QString &local_file_path,Update*update)
         if(last_user_command == "/translate_file"){
             QPointer<Translater> translater = new Translater(this,user_id);
             QString caption = update->getMessage()->getCaption();
-            QString langFrom = TextReader::getNthWord(caption,1);
-            QString langTo = TextReader::getNthWord(caption,2);
+            QString langFrom = TextReader::getNthWord(caption,1).toLower();
+            QString langTo = TextReader::getNthWord(caption,2).toLower();
             translater->translateFile(local_file_path,langFrom,langTo);
         }else if(last_user_command == "/recognize_photo"){
             QString caption = update->getMessage()->getCaption();
-            QString langFrom = TextReader::getNthWord(caption,1);
+            QString langFrom = TextReader::getNthWord(caption,1).toLower();
             QString text = TesseractOCR::recognizeImage(local_file_path,langFrom);
             sendTextMessageToUser(user_id,text);
             QString text_uid = QString::number(user_id);
             QString filename = text_uid + ".txt";
             FileWriter::writeToFile(filename,text);
             sendDocumentToUser(user_id,filename);
+        }else if(last_user_command == "/translate_photo"){
+            QString caption = update->getMessage()->getCaption();
+            QString langFrom = TextReader::getNthWord(caption,1).toLower();
+            QString langTo = TextReader::getNthWord(caption,2).toLower();
+            QString text = TesseractOCR::recognizeImage(local_file_path,langFrom);
+            QPointer<Translater> translater = new Translater(this,user_id);
+            translater->translateFile(local_file_path,langFrom,langTo);
         }else{
             sendTextMessageToUser(user_id,INVALID_COMMAND);
         }
