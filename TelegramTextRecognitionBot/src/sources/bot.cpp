@@ -77,7 +77,11 @@ void Bot::executeUserCommand(Update *update)
         QString text_to_translate = TextReader::getTextAfterNthWord(update->getMessage()->getText(),2);
         if(!text_to_translate.isEmpty() && languages.size() == 2){
             QPointer<Translater> translater = new Translater(this,user_id);
-            translater->translateText(text_to_translate,languages.at(0).toLower(),languages.at(1).toLower());
+            QString langFrom = languages.at(0).toLower();
+            langFrom.resize(2);
+            QString langTo = languages.at(1).toLower();
+            langTo.resize(2);
+            translater->translateText(text_to_translate,langFrom,langTo);
         }else{
             sendTextMessageToUser(user_id,update->toString() + INVALID_COMMAND);
         }
@@ -150,6 +154,12 @@ void Bot::sendReplyToUserCommand(const Update *update)
     }else if(last_user_command == "/about"){
         reply = ABOUT;
         last_user_commands[user_id].clear();
+    }else if(last_user_command == "/supported_languages"){
+        reply = "Supported languages for recognizing : \n";
+        for(auto language: SUPPORTED_LANGUAGES){
+            reply += language + '\n';
+        }
+        last_user_commands[user_id].clear();
     }
     sendTextMessageToUser(user_id,reply);
 }
@@ -186,6 +196,8 @@ void Bot::receiveLocalFilePath(const QString &local_file_path,Update*update)
             QString caption = update->getMessage()->getCaption();
             QString langFrom = TextReader::getNthWord(caption,1).toLower();
             QString langTo = TextReader::getNthWord(caption,2).toLower();
+            langFrom.resize(2);
+            langTo.resize(2);
             translater->translateFile(local_file_path,langFrom,langTo);
         }else if(last_user_command == "/recognize_photo"){
             QString caption = update->getMessage()->getCaption();
@@ -202,7 +214,9 @@ void Bot::receiveLocalFilePath(const QString &local_file_path,Update*update)
             QString langTo = TextReader::getNthWord(caption,2).toLower();
             QString text = TesseractOCR::recognizeImage(local_file_path,langFrom);
             QPointer<Translater> translater = new Translater(this,user_id);
-            translater->translateFile(local_file_path,langFrom,langTo);
+            langFrom.resize(2);
+            langTo.resize(2);
+            translater->translateText(text,langFrom,langTo);
         }else{
             sendTextMessageToUser(user_id,INVALID_COMMAND);
         }

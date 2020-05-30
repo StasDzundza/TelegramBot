@@ -40,9 +40,10 @@ private:
     const QString ABOUT = "Developed by Stanislav Dzundza(@dzundza_stas) during studying in Taras Shevchenko National University of Kyiv.";
 
     const QSet<QString> VALID_COMMANDS{"/translate_text","/recognize_photo","/translate_photo","/translate_file","/write_text_to_file",
-                                       "/commands","/description","/about","/start"};
+                                       "/supported_languages","/commands","/description","/about","/start"};
     const QVector<QString> KEYBOARD_BUTTONS{"/translate_text","/recognize_photo","/translate_photo","/translate_file","/write_text_to_file",
-                                       "/commands","/description","/about"};
+                                       "/supported_languages","/commands","/description","/about"};
+    const QVector<QString> SUPPORTED_LANGUAGES{"English","Ukrainian","Russian"};
 
     QMap<int,QString> last_user_commands;
 

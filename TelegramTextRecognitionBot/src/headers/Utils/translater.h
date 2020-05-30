@@ -31,13 +31,12 @@ private:
     QNetworkAccessManager translate_access_manager;
     QNetworkRequest translate_request;
 
-    const QString x_rapid_host = "google-translate1.p.rapidapi.com";
+    const QString x_rapid_host = "microsoft-azure-translation-v1.p.rapidapi.com";
     const QString x_rapid_key = "37df3f18b8msh4672e6c02bb8340p1caad0jsn60400187e4e1";
-    const QString translator_url = "https://google-translate1.p.rapidapi.com/language/translate/v2";
+    const QString translator_url = "https://microsoft-azure-translation-v1.p.rapidapi.com/translate";
     const QString accept = "application/json";
-    const QString content_type = "application/x-www-form-urlencoded";
 
-    QString parseTranslatedTextFromJson(const QJsonDocument& translate_result);
+    QString parseTranslatedTextFromXml(const QByteArray& translate_result);
 };
 
 #endif // TRANSLATER_H
